@@ -1,35 +1,50 @@
 import ply.lex as lex
 
-# Lista de tokens
 tokens = [
-    'CLASS_STEREOTYPE', 'RELATION_STEREOTYPE', 'KEYWORD', 'SPECIAL_SYMBOL', 'CLASS_NAME', 
-    'RELATION_NAME','INSTANCE_NAME', 'NATIVE_DATATYPE', 'NEW_DATATYPE','META_ATTRIBUTE',
-    'ENUM_NAME', 'ATTRIBUTE', 'CARDINALITY'
+    'CLASS_STEREOTYPE', 'RELATION_STEREOTYPE', 'KEYWORD', 'CLASS_NAME', 'RELATION_NAME',
+    'INSTANCE_NAME', 'NATIVE_DATATYPE', 'NEW_DATATYPE','META_ATTRIBUTE','ATTRIBUTE', 
+    'CARDINALITY', 'IMPORT', 'PACKAGE', 'SPECIALIZES', 'DATATYPE','ENUM', 'GENSET', 
+    'DISJOINT', 'COMPLETE', 'GENERAL', 'SPECIFICS', 'WHERE', 'RELATION', 'AGGREGATION',
+    'AGGREGATION_REV', 'COMPOSITION','COMPOSITION_REV', 'ASSOCIATION', 'LBRACE', 'RBRACE', 
+    'LPAREN', 'RPAREN', 'LBRACKET', 'RBRACKET', 'AT', 'COLON','COMMA', 'DOTDOT', 'ASTERISK',
+    'CATEGORIZER'
 ]
 
-# Palavras reservadas
 keywords = { 
-    'specializes', 'genset', 'disjoint', 'complete', 'general', 'specifics', 'where', 
-    'package', 'import', 'functional-complexes', 'relators', 'intrinsic-modes', 'extrinsic-modes', 
-    'datatype', 'enum', 'type', 'instanceOf', 'categorizer', 'of', 'relation', 'inverseOf'
-}
+    'functional-complexes', 'relators', 'intrinsic-modes', 'extrinsic-modes',
+    'type', 'instanceOf', 'of', 'inverseOf'
+} 
 
-# Estereótipos de classe
 class_stereotypes = { 
     'event', 'situation', 'process', 'category', 'mixin','phaseMixin', 'roleMixin', 
     'historicalRoleMixin', 'kind', 'collective','quantity', 'quality', 'mode', 'intrisicMode', 
     'extrinsicMode', 'subkind','phase', 'role', 'historicalRole', 'relator', 'class'
 }
 
-# Estruturas de dados
+relation_stereotypes = { 
+    'material', 'derivation', 'comparative', 'mediation', 'characterization', 
+    'externalDependence', 'subCollectionOf', 'subQualityOf', 'componentOf', 
+    'instantiation', 'memberOf', 'termination', 'participational', 'participation', 
+    'historicalDependence', 'creation', 'manifestation', 'bringsAbout', 'triggers', 
+    'composition', 'aggregation', 'inherence', 'value', 'formal', 'constitution'
+}
+
+#  ====== Estruturas de dados ======
 symbol_table = []
 token_count = {token: 0 for token in tokens}
 processed_tokens = [] 
 error_tokens = []
 last_keyword = None  # Armazena a última palavra-chave processada
 
-# Adiciona o token à tabela de símbolos e atualiza o contador
+# Flag para controlar se vai registrar tokens (modo léxico) ou não
+collect_lex_info = True
+
+# ====== Adiciona o token à tabela de símbolos e atualiza o contador ======
 def add_to_symbol_table(token):
+    global collect_lex_info
+    if not collect_lex_info:
+        return  # está no modo "sintático", não registrar nada
+
     if any(entry['Valor'] == token.value for entry in symbol_table):
         token_count[token.type] += 1
         processed_tokens.append(token)
@@ -41,7 +56,7 @@ def add_to_symbol_table(token):
     token_count[token.type] += 1
     processed_tokens.append(token)
 
-# Função para adicionar erros (captura o lexema inválido completo e retorna o tamanho consumido)
+# ====== Função para adicionar erros ====== 
 def add_to_error_list(token):
     data = token.lexer.lexdata
     start = token.lexer.lexpos
@@ -49,18 +64,23 @@ def add_to_error_list(token):
     n = len(data)
     # Delimitadores conhecidos (não consumir para não perder tokens válidos seguintes)
     delimiters = set('{}()[]:@,.*-<>')
+
     while i < n and (not data[i].isspace()) and (data[i] not in delimiters):
         i += 1
+
     invalid_lexeme = data[start:i] if i > start else data[start:start+1]
-    error_tokens.append({
-        'Token': 'ERRO',
-        'Valor': invalid_lexeme,
-        'Linha': token.lineno,
-        'Posição': token.lexpos
-    })
+
+    if collect_lex_info:
+        error_tokens.append({
+            'Token': 'ERRO',
+            'Valor': invalid_lexeme,
+            'Linha': token.lineno,
+            'Posição': token.lexpos
+        })
+
     return max(1, i - start)
 
-# Expressões regulares para os tokens
+# ===== EXPRESSÕES REGULARES ===== 
 
 # Atributos de Classes e DataTypes
 def t_ATTRIBUTE(t):
@@ -75,16 +95,9 @@ def t_NEW_DATATYPE(t):
     add_to_symbol_table(t)
     return t
 
-# Enumerações
-def t_ENUM_NAME(t):
-    r'\b[A-Za-z]+Enum\b'
-    add_to_symbol_table(t)
-    return t
-
 # Cardinalidade [n], [n..m], [n..*], [*]
 def t_CARDINALITY(t):
     r'\[\s*(\*|\d+)\s*(?:\.\.\s*(\*|\d+))?\s*\]'
-    # remove espaços internos
     content = t.value[1:-1].strip()
     if '..' in content:
         a, b = [p.strip() for p in content.split('..', 1)]
@@ -94,17 +107,161 @@ def t_CARDINALITY(t):
     add_to_symbol_table(t)
     return t
 
-# Símbolos especiais restantes
-# Observação: o caractere ":" também é usado em atributos, mas lá é consumido por t_ATTRIBUTE.
-# Aqui tratamos apenas ocorrências de ':' que não façam parte de um atributo.
-def t_SPECIAL_SYMBOL(t):
-    r'(\{|\}|\(|\)|<>--|--<>|--|--<o>|<o>--|@|:|,|\.)'
+def t_AGGREGATION(t):
+    r'\<\>--'
+    t.type = 'AGGREGATION'
     add_to_symbol_table(t)
     return t
 
-# Palavras reservadas
+def t_AGGREGATION_REV(t):
+    r'--\<\>'
+    t.type = 'AGGREGATION_REV'
+    add_to_symbol_table(t)
+    return t
+
+def t_COMPOSITION(t):
+    r'\<o\>--'
+    t.type = 'COMPOSITION'
+    add_to_symbol_table(t)
+    return t
+
+def t_COMPOSITION_REV(t):
+    r'--\<o\>'
+    t.type = 'COMPOSITION_REV'
+    add_to_symbol_table(t)
+    return t
+
+def t_ASSOCIATION(t):
+    r'--'
+    t.type = 'ASSOCIATION'
+    add_to_symbol_table(t)
+    return t
+
+# Símbolos Especiais
+def t_LBRACKET(t):
+    r'\['
+    add_to_symbol_table(t)
+    return t
+
+def t_RBRACKET(t):
+    r'\]'
+    add_to_symbol_table(t)
+    return t
+
+def t_LBRACE(t):
+    r'\{'
+    add_to_symbol_table(t)
+    return t
+
+def t_RBRACE(t):
+    r'\}'
+    add_to_symbol_table(t)
+    return t
+
+def t_LPAREN(t):
+    r'\('
+    add_to_symbol_table(t)
+    return t
+
+def t_RPAREN(t):
+    r'\)'
+    add_to_symbol_table(t)
+    return t
+
+def t_AT(t):
+    r'@'
+    add_to_symbol_table(t)
+    return t
+
+def t_DOTDOT(t):
+    r'\.\.'
+    add_to_symbol_table(t)
+    return t
+
+def t_COMMA(t):
+    r','
+    add_to_symbol_table(t)
+    return t
+
+def t_COLON(t):
+    r':'
+    add_to_symbol_table(t)
+    return t
+
+def t_ASTERISK(t):
+    r'\*'
+    add_to_symbol_table(t)
+    return t
+
+# Palavras reservadas (tokens individuais)
+def t_IMPORT(t): 
+    r'\bimport\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_PACKAGE(t):
+    r'\bpackage\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_SPECIALIZES(t): 
+    r'\bspecializes\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_DATATYPE(t):
+    r'\bdatatype\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_ENUM(t):
+    r'\benum\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_GENSET(t):
+    r'\bgenset\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_DISJOINT(t):
+    r'\bdisjoint\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_COMPLETE(t):
+    r'\bcomplete\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_GENERAL(t):
+    r'\bgeneral\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_CATEGORIZER(t):
+    r'\bcategorizer\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_SPECIFICS(t):
+    r'\bspecifics\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_WHERE(t):
+    r'\bwhere\b'
+    add_to_symbol_table(t)
+    return t
+
+def t_RELATION(t):
+    r'\brelation\b'
+    add_to_symbol_table(t)
+    return t
+
+# Palavras reservadas 
 def t_KEYWORD(t):
-    r'\b(specializes|genset|disjoint|complete|general|specifics|where|package|import|functional-complexes|relators|intrinsic-modes|extrinsic-modes|datatype|enum|type|instanceOf|categorizer|of|relation|inverseOf)\b'
+    r'\b(functional-complexes|relators|intrinsic-modes|extrinsic-modes|type|instanceOf|categorizer|of|inverseOf)\b'
     global last_keyword
     if t.value in keywords:
         t.type = 'KEYWORD'
@@ -135,6 +292,8 @@ def t_CLASS_STEREOTYPE(t):
 # Estereótipos de relações
 def t_RELATION_STEREOTYPE(t):
     r'\b(material|derivation|comparative|mediation|characterization|externalDependence|subCollectionOf|subQualityOf|componentOf|instantiation|memberOf|termination|participational|participation|historicalDependence|creation|manifestation|bringsAbout|triggers|composition|aggregation|inherence|value|formal|constitution)\b'
+    if t.value in relation_stereotypes:
+        t.type = 'RELATION_STEREOTYPE'
     add_to_symbol_table(t)
     return t
 
@@ -158,8 +317,8 @@ def t_CLASS_NAME(t):
 
 # Atualizar contagem de linhas
 def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+    r'\r?\n+'
+    t.lexer.lineno += t.value.count("\n")
 
 # Ignorar espaços e tabulações
 t_ignore = ' \t'
@@ -169,27 +328,25 @@ def t_error(t):
     consumed = add_to_error_list(t)
     t.lexer.skip(consumed)
 
-# Construção do Lexer
+# ====== Construção do Lexer ====== 
 lexer = lex.lex()
 
-# Função para processar o arquivo
+# ====== Função para processar o arquivo ====== 
 def process_file(file_path):
-    global symbol_table, token_count, processed_tokens, error_tokens, last_keyword
+    global symbol_table, token_count, processed_tokens, error_tokens, last_keyword, collect_lex_info
     # Limpa completamente o contexto anterior
     symbol_table = []
     token_count = {token: 0 for token in tokens}
     processed_tokens = []
     error_tokens = []
     last_keyword = None  # Reseta a última palavra-chave
+    collect_lex_info = True  # entra no modo léxico
 
     try:
         with open(file_path, 'r') as file:
             data = file.read()
-            # Reinicia contagem de linhas do lexer
             lexer.lineno = 1
             lexer.input(data)
-
-            # Processa os tokens
             while lexer.token():
                 pass  # Apenas preenche os dados na tabela e contador
     except FileNotFoundError:
@@ -200,10 +357,11 @@ def process_file(file_path):
         return False
     return True
 
-# Função para exibir os tokens processados
+# ====== Função para exibir os tokens processados ====== 
 def show_tokens():
-    print("\n====================== Tokens Processados =======================\n")
+    print("\n===================== TOKENS PROCESSADOS =======================")
     header = f"{'Token':<20} {'Valor':<28} {'Linha':<6} {'Posição':<5}"
+    print("-" * len(header))
     print(header)
     print("-" * len(header))
 
@@ -212,25 +370,29 @@ def show_tokens():
 
     if error_tokens:
         header = f"{'Token':<20} {'Valor':<28} {'Linha':<6} {'Posição':<5}"
-
-        print("\n=========================== Erros ===============================\n")
+        print("\n=========================== ERROS ==============================")
+        print("-" * len(header))
         print(header)
         print("-" * len(header))
         for error in error_tokens:
             print(f"{error['Token']:<20} {error['Valor']:<30} {error['Linha']:<6} {error['Posição']:<5}")
 
-# Função para exibir a tabela de símbolos
+# ====== Função para exibir a tabela de símbolos ====== 
 def show_symbol_table():
-    print("\n================= Tabela de Símbolos =================\n")
+    print("\n================== TABELA DE SÍMBOLOS =================")
+    print("-" * 55)
     print(f"{'Token':<20} {'Valor':<30}")
     print("-" * 55)
     for entry in symbol_table:
         print(f"{entry['Token']:<20} {entry['Valor']:<30}")
 
-# Função para exibir a contagem de tokens
+# ====== Função para exibir a contagem de tokens ====== 
 def show_token_count():
-    print("\n======= Contagem de Tokens =======\n")
+    print("\n======== CONTAGEM DE TOKENS =======")
+    print("-" * 35)
     print(f"{'Token':<20} {'Quantidade':<10}")
     print("-" * 35)
+
     for token, count in token_count.items():
-        print(f"{token:<25} {count:<10}")
+        if count > 0:
+            print(f"{token:<25} {count:<10}")

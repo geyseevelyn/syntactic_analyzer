@@ -17,6 +17,8 @@ disjoint complete genset AgePhase {
     specifics Child, Teenager, Adult
 }
 
+disjoint complete genset PersonAgeGroup where Child, Adult specializes Person
+
 disjoint complete genset LifeStatus {
     general Person
     specifics DeceasedPerson, LivingPerson
@@ -41,8 +43,9 @@ relator CarRental {
     @mediation
     -- involvesRental -- [1] RentalCar
     
+    @mediation
     -- involvesMediator -- [1] ResponsibleEmployee
     
     @mediation
-    -- involvesCustomer --[1] Customer
+   -- involvesCustomer --[1] Customer
 }

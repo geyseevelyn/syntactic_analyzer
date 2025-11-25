@@ -7,7 +7,6 @@ kind Car
 relator CarOwnership {
     @mediation
     -- involvesOwner -- [1] CarAgency
-
     @mediation
     -- involvesProperty -- [1] Car
 }

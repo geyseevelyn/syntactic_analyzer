@@ -88,26 +88,32 @@ def p_declaration(p):
     p[0] = p[1]
 
 # Classes
-def p_class_decl(p):
-    """class_decl : CLASS_STEREOTYPE CLASS_NAME class_tail"""
+def p_class_header(p):
+    """class_header : CLASS_STEREOTYPE CLASS_NAME opt_specializes"""
     global _current_class
+
     name = p[2]
     stereotype = p[1]
+    superclasses = p[3]
 
+    # registra a classe no resumo
     summary["classes"].append({
         "name": name,
         "stereotype": stereotype,
-        "superclasses": p[3]["superclasses"]
+        "superclasses": superclasses
     })
 
-    _current_class = name  # dono das relações internas
-    p[0] = ("class", name)
+    # define a classe "dona" para as relações internas que vierem no corpo
+    _current_class = name
+    # devolvemos só o nome, para o class_decl usar
+    p[0] = name
 
-def p_class_tail(p):
-    """class_tail : opt_specializes opt_class_body"""
-    p[0] = {"superclasses": p[1], "body": p[2]}
+def p_class_decl(p):
+    """class_decl : class_header opt_class_body"""
+    # p[1] é o nome da classe retornado pelo cabeçalho
+    p[0] = ("class", p[1])
 
-# Speializes (opcional)
+# Specializes (opcional)
 def p_opt_specializes(p):
     """opt_specializes :
                        | SPECIALIZES class_list"""
@@ -407,7 +413,7 @@ def show_syntax_summary(summary_data=None):
                 p.append(r["card_to"])
                 p.append(r["target"])
                 print("     " + " ".join(p))
-        print()
+            print()
     
     print("RELAÇÕES EXTERNAS:")
     if not external:

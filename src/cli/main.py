@@ -1,15 +1,19 @@
 import os
-from lexer import process_file, show_tokens, show_symbol_table, show_token_count
-from parser import parse_file, show_syntax_summary, show_syntax_errors
+from ..lexical.lexer import analyze_text
+from ..lexical.reports import show_tokens, show_symbol_table, show_token_count
+from ..parsing.grammar import parse_text
+from ..parsing.reports import show_syntax_summary, show_syntax_errors
 
-# Guardar último resultado de análise sintática
+# Guardar último resultado da análise sintática
 current_file = None
 current_ast = None
 current_summary = None
 current_syntax_errors = None
+# Guardar último resultado da análise léxica
+current_lex_data = None 
 
 def list_example_tonto_files():
-    base_dir = os.path.join(os.path.dirname(__file__), 'examples')
+    base_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'examples')
     found = []
     for root, _, files in os.walk(base_dir):
         for fname in files:
@@ -38,7 +42,9 @@ def choose_input_file():
 
             print("\nArquivos disponíveis:")
             for idx, f in enumerate(files, start=1):
-                rel = os.path.relpath(f, os.path.dirname(__file__))
+                workspace_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+                rel = os.path.relpath(f, workspace_root)
+                rel = rel.replace('/', os.path.sep)
                 print(f"{idx}. {rel}")
             try:
                 opt = int(input("Escolha um arquivo pelo número: ").strip())
@@ -51,21 +57,35 @@ def choose_input_file():
             print("❌ Opção inválida. Tente novamente.")
 
 def run_all_analyses(file_path):
-    """Roda análise léxica e sintática para o arquivo."""
-    global current_file, current_ast, current_summary, current_syntax_errors
+    global current_file, current_ast, current_summary, current_syntax_errors, current_lex_data
 
-    # análise léxica
-    if not process_file(file_path):
+    if not file_path:
         print("❌ Falha na análise léxica. Verifique o arquivo.")
         return False
-
-    # análise sintática
-    ast, summary, errors = parse_file(file_path)
+        
     current_file = file_path
+
+    try:
+        with open(file_path, "r", encoding="utf-8") as f:
+            data = f.read()
+    except FileNotFoundError:
+        print(f"❌ Arquivo {file_path} não encontrado.")
+        return False
+        
+    # 1. Análise Léxica (Chama analyze_text)
+    processed_tokens, symbol_table, error_tokens = analyze_text(data)
+    current_lex_data = (processed_tokens, symbol_table, error_tokens)
+        
+    # 2. Análise Sintática (Chama parse_text)
+    ast, summary, errors = parse_text(data)
     current_ast = ast
     current_summary = summary
     current_syntax_errors = errors
-    print("\n✅ Arquivo analisado com sucesso (léxico + sintático)!")
+    
+    if current_syntax_errors:
+        print(f"\n⚠️  Análise sintática concluída com {len(current_syntax_errors)} erro(s)!")
+    else:
+        print("\n✅ Análise sintática concluída com sucesso!")
     return True
 
 def menu_loop():
@@ -81,20 +101,20 @@ def menu_loop():
         choice = input("Escolha uma opção: ").strip()
 
         if choice == '1':
-            show_tokens()
+            show_tokens(current_lex_data[0], current_lex_data[2])
         elif choice == '2':
-            show_symbol_table()
+            show_symbol_table(current_lex_data[1])
         elif choice == '3':
-            show_token_count()
+            show_token_count(current_lex_data[0])
         elif choice == '4':
-            if current_summary is None:
+            if current_summary is None: 
                 print("❌ Nenhuma análise sintática realizada ainda.")
-            else:
+            else: 
                 show_syntax_summary(current_summary)
         elif choice == '5':
-            if current_syntax_errors is None:
+            if current_syntax_errors is None: 
                 print("❌Nenhuma análise sintática realizada ainda.")
-            else:
+            else: 
                 show_syntax_errors(current_syntax_errors)
         elif choice == '6':
             new_path = choose_input_file()

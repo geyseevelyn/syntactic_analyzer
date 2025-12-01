@@ -23,11 +23,11 @@ def register_error(token, msg):
     if token:
         syntax_errors.append(f"Erro de sintaxe na linha {token.lineno}: {msg} (token: '{token.value}')")
     else:
-        syntax_errors.append("Erro de sintaxe próximo ao fim do arquivo.")
+        syntax_errors.append(msg)
 
 def p_error(p):
     if not p:
-        register_error(None, "Erro próximo ao fim do arquivo")
+        register_error(None, "Erro de sintaxe próximo ao fim do arquivo.")
         return
     register_error(p, "Token inesperado")
     parser.errok() # não para a validação se achar erro 
@@ -100,18 +100,27 @@ def p_class_header(p):
     summary["classes"].append({
         "name": name,
         "stereotype": stereotype,
-        "superclasses": superclasses
+        "superclasses": superclasses,
+        "attributes": []
     })
 
     # define a classe "dona" para as relações internas que vierem no corpo
     _current_class = name
-    # devolvemos só o nome, para o class_decl usar
+    # devolve só o nome, para o class_decl usar
     p[0] = name
 
 def p_class_decl(p):
     """class_decl : class_header opt_class_body"""
-    # p[1] é o nome da classe retornado pelo cabeçalho
-    p[0] = ("class", p[1])
+    class_name = p[1]
+    members = p[2]
+
+    if summary["classes"]:
+        current_class_data = summary["classes"][-1]
+        if members:
+            attributes = [member_data for member_type, member_data in members if member_type == 'attribute']
+            current_class_data["attributes"].extend(attributes)
+
+    p[0] = ("class", class_name)
 
 # Specializes (opcional)
 def p_opt_specializes(p):
@@ -173,10 +182,13 @@ def p_meta_attr_list(p):
 # Datatypes
 def p_datatype_decl(p):
     """datatype_decl : DATATYPE NEW_DATATYPE opt_dt_specializes opt_datatype_body"""
+    raw_attributes = p[4] 
+    attributes = [attr_data for attr_type, attr_data in raw_attributes if attr_type == 'attribute']
+   
     summary["datatypes"].append({
         "name": p[2],
         "superclasses": p[3],
-        "attributes": p[4],
+        "attributes": attributes,
     })
     p[0] = ("datatype", p[2])
 
@@ -362,101 +374,212 @@ def show_syntax_summary(summary_data=None):
     internal = summary_data["internal_relations"]
     external = summary_data["external_relations"]
 
-    print("\n===================== RESUMO SINTÁTICO =====================\n")
+    # Pré-processamento para relações internas 
+    rels_by_class = {}
+    for r in internal:
+        rels_by_class.setdefault(r["owner"], []).append(r)
     
-    print(" QUANTIDADE DE CONSTRUTOS DECLARADOS:")
-    print(f"  - Classes..........: {len(classes)}")
-    print(f"  - Datatypes........: {len(datatypes)}")
-    print(f"  - Enums............: {len(enums)}")
-    print(f"  - GenSets..........: {len(gensets)}")
-    print(f"  - Rel. internas....: {len(internal)}")
-    print(f"  - Rel. externas....: {len(external)}")
-    print()
+    # Função auxiliar para formatar a relação 
+    def format_relation(r, is_external=False):
+        parts = []
+        if r.get("stereotype"): 
+            parts.append(f"@{r['stereotype']}")
+        
+        if is_external:
+             parts.append("relation")
+             parts.append(r["domain"])
 
-    print("PACOTES IMPORTADOS:")
-    if imports:
-        for imp in imports:
-            print(f"  - {imp}")
-        print()
-    else:
-        print("  (nenhum pacote importado)\n")
+        if r.get("card_from"): 
+            parts.append(r["card_from"])
+        parts.append(r["connector"])
+        
+        if r.get("name"):
+            parts.append(r["name"])
+            if not is_external:
+                parts.append("--")
+        
+        if r.get("card_to"): 
+            parts.append(r["card_to"])
+        
+        if not is_external:
+            parts.append(r["target"])
+        else:
+            parts.append(r["range"])
+            
+        return " ".join(parts).strip()
+
+    # Função para formatar o atributo 
+    def format_attribute(attr):
+        attr_name = attr.get('name', '(sem nome)')
+        attr_type = attr.get('type', '(sem tipo)')
+        attr_card = attr.get('cardinality', '')
+        attr_flags = ", ".join(attr.get('flags', []))
+        
+        attr_str = f"{attr_name}: {attr_type}"
+        if attr_card:
+            attr_str += f" {attr_card}"
+        if attr_flags:
+            attr_str += f" {{{attr_flags}}}"
+        return attr_str
+    def get_branch_prefix(index, total):
+        return "└── " if index == total - 1 else "├── "
+
+    print("\n===================== RESUMO SINTÁTICO (ÁRVORE HIERÁRQUICA) =====================\n")
     
-    print("PACOTE PRINCIPAL:")
-    print(f"  - {pkg if pkg else '(nenhum)'}\n")
+    print("🌳 ONTOLOGIA")
 
-    print("CLASSES POR PACOTE:")
-    if not classes:
-        print("  (nenhuma classe declarada)\n")
-    else:
-        for c in classes:
-            print(f"  - {c['name']}")
-        print()
-
-    print("RELAÇÕES INTERNAS POR CLASSE:")
-    if not internal:
-        print("  (nenhuma relação interna declarada)\n")
-    else:
-        rels_by_class = {}
-        for r in internal:
-            rels_by_class.setdefault(r["owner"], []).append(r)
-
-        for owner, rels in rels_by_class.items():
-            print(f"  {owner}:")
-            for r in rels:
-                p = []
-                if r["stereotype"]: p.append(f"@{r['stereotype']}")
-                if r["card_from"]:  p.append(r["card_from"])
-                p.append(r["connector"])
-                if r["name"]:
-                    p.append(r["name"])
-                    p.append("--")
-                p.append(r["card_to"])
-                p.append(r["target"])
-                print("     " + " ".join(p))
-            print()
+    major_components = []
+    major_components.append({'type': 'IMPORTS', 'content': imports})
     
-    print("RELAÇÕES EXTERNAS:")
-    if not external:
-        print("  (nenhuma relação externa declarada)\n")
-    else:
-        for r in external:
-            p = []
-            if r["stereotype"]: p.append(f"@{r['stereotype']}")
-            p.append("relation")
-            p.append(r["domain"])
-            if r["card_from"]: p.append(r["card_from"])
-            p.append(r["connector"])
-            if r["name"]:
-                p.append(r["name"])
-                p.append("--")
-            p.append(r["card_to"])
-            p.append(r["range"])
-            print("   " + " ".join(p))
-        print()
+    if pkg:
+        major_components.append({'type': 'PACOTE', 'content': pkg})
+        
+    package_declarations = []
 
-    print("DATATYPES:")
-    if datatypes:
-        for d in datatypes:
-            print(f"  - {d['name']}")
-    else:
-        print("  (nenhum DATATYPE declarado)")
-    print()
+    if classes: 
+        package_declarations.append({'type': 'CLASSES', 'content': classes})
+    if datatypes: 
+        package_declarations.append({'type': 'DATATYPES', 'content': datatypes})
+    if enums: 
+        package_declarations.append({'type': 'ENUMS', 'content': enums})
+    if gensets: 
+        package_declarations.append({'type': 'GENSETS', 'content': gensets})
+    if external: 
+        package_declarations.append({'type': 'RELAÇÕES EXTERNAS', 'content': external})
 
-    print("ENUMS:")
-    if enums:
-        for e in enums:
-            print(f"  - {e['name']}")
-    else:
-        print("  (nenhuma ENUM declarada)")
-    print()
+    for major_index, major_comp in enumerate(major_components):
+        is_last_major = major_index == len(major_components) - 1
+        major_prefix = "└── " if is_last_major else "├── "
+        major_indent = "    " if is_last_major else "│   "
 
-    print("GENSETS:")
-    if gensets:
-        for g in gensets:
-            print(f"  - {g['name']}")
-    else:
-        print("  (nenhum GENSET declarado)") 
-    print()
+        comp_type = major_comp['type']
+        comp_content = major_comp['content']
+        
+        if comp_type == 'IMPORTS':
+            print(f"{major_prefix} 📥 {comp_type}:")
+            if comp_content:
+                for i, imp in enumerate(comp_content):
+                    prefix = major_indent + get_branch_prefix(i, len(comp_content))
+                    print(f"{prefix}{imp}")
+            else:
+                print(f"{major_indent}└── (Nenhum pacote importado)")
+
+        elif comp_type == 'PACOTE':
+            print(f"{major_prefix} 📦 PACOTE: {comp_content}")
+
+            for decl_index, decl_comp in enumerate(package_declarations):
+                is_last_decl = decl_index == len(package_declarations) - 1
+                decl_prefix = major_indent + get_branch_prefix(decl_index, len(package_declarations))
+                decl_indent = major_indent + ("    " if is_last_decl else "│   ")
+                
+                decl_type = decl_comp['type']
+                decl_content = decl_comp['content']
+
+                if decl_type == 'CLASSES':
+                    print(f"{decl_prefix} 📖 {decl_type}:")
+                    for item_index, c in enumerate(decl_content):
+                        is_last_item = item_index == len(decl_content) - 1
+                        item_prefix = decl_indent + get_branch_prefix(item_index, len(decl_content))
+                        
+                        super_str = f" specializes {', '.join(c.get('superclasses', []))}" if c.get('superclasses') else ""
+                        print(f"{item_prefix} <{c['stereotype']}> {c['name']}{super_str}")
+                        
+                        class_components = []
+                        if c.get('attributes'):
+                            class_components.append({'type': 'ATTRIBUTES', 'content': c['attributes']})
+                        if c['name'] in rels_by_class:
+                            class_components.append({'type': 'RELATIONS', 'content': rels_by_class[c['name']]})
+                            
+                        for comp_inner_index, comp_inner in enumerate(class_components):
+                            is_last_inner = comp_inner_index == len(class_components) - 1
+                            inner_prefix = decl_indent + ("    " if is_last_item else "│   ") + get_branch_prefix(comp_inner_index, len(class_components))
+                            inner_indent = decl_indent + ("    " if is_last_item else "│   ") + ("    " if is_last_inner else "│   ")
+
+                            # ATRIBUTOS (Sub-nível da Classe) 
+                            if comp_inner['type'] == 'ATTRIBUTES':
+                                attributes = comp_inner['content']
+                                print(f"{inner_prefix} 📌 ATRIBUTOS:")
+                                
+                                for attr_index, attr in enumerate(attributes):
+                                    is_last_attr = attr_index == len(attributes) - 1
+                                    attr_prefix = inner_indent + get_branch_prefix(attr_index, len(attributes))
+                                    
+                                    attr_str = format_attribute(attr)
+                                    print(f"{attr_prefix} {attr_str}")
+                                    
+                            # RELAÇÕES INTERNAS (Sub-nível da Classe) 
+                            elif comp_inner['type'] == 'RELATIONS':
+                                relations = comp_inner['content']
+                                print(f"{inner_prefix} 🔗 RELAÇÕES INTERNAS:")
+                                
+                                for rel_index, r in enumerate(relations):
+                                    is_last_rel = rel_index == len(relations) - 1
+                                    rel_prefix = inner_indent + get_branch_prefix(rel_index, len(relations))
+                                    rel_str = format_relation(r, is_external=False)
+                                    print(f"{rel_prefix} {rel_str}")
+
+                elif decl_type == 'DATATYPES':
+                    print(f"{decl_prefix} 📊 {decl_type}:")
+                    for item_index, d in enumerate(decl_content):
+                        is_last_item = item_index == len(decl_content) - 1
+                        item_prefix = decl_indent + get_branch_prefix(item_index, len(decl_content))
+                        
+                        super_str = f" specializes {', '.join(d.get('superclasses', []))}" if d.get('superclasses') else ""
+                        print(f"{item_prefix}{d['name']}{super_str}")
+
+                        # Atributos do Datatype (Sub-nível)
+                        if d.get('attributes'):
+                            attributes = d['attributes']
+                            datatype_indent = decl_indent + ("    " if is_last_item else "│   ")
+                            
+                            print(f"{datatype_indent}└── 📌 ATRIBUTOS:")
+
+                            for attr_index, attr in enumerate(attributes):
+                                is_last_attr = attr_index == len(attributes) - 1
+                                attr_prefix = datatype_indent + "    " + get_branch_prefix(attr_index, len(attributes))
+                                
+                                attr_str = format_attribute(attr)
+                                print(f"{attr_prefix} {attr_str}")
+
+                elif decl_type == 'ENUMS':
+                    print(f"{decl_prefix} 🔢 {decl_type}:")
+                    for item_index, e in enumerate(decl_content):
+                        item_prefix = decl_indent + get_branch_prefix(item_index, len(decl_content))
+                        elements_str = ", ".join(e['elements'])
+                        print(f"{item_prefix}{e['name']}: {{{elements_str}}}")
+
+                elif decl_type == 'GENSETS':
+                    print(f"{decl_prefix} ➕ {decl_type}:")
+                    for item_index, g in enumerate(decl_content):
+                        is_last_item = item_index == len(decl_content) - 1
+                        item_prefix = decl_indent + get_branch_prefix(item_index, len(decl_content))
+                        
+                        constraints_str = " ".join(g['constraints'])
+                        general = g.get('general')
+                        specifics_str = ", ".join(g['specifics'])
+                        
+                        print(f"{item_prefix} {constraints_str} {g['name']}")
+                        
+                        genset_indent = decl_indent + ("    " if is_last_item else "│   ")
+                        
+                        print(f"{genset_indent}├── GENERAL: {general}")
+                        print(f"{genset_indent}└── SPECIFICS: {specifics_str}")
+
+                elif decl_type == 'RELAÇÕES EXTERNAS':
+                    print(f"{decl_prefix} 🌐 {decl_type}:")
+                    for item_index, r in enumerate(decl_content):
+                        item_prefix = decl_indent + get_branch_prefix(item_index, len(decl_content))
+                        rel_str = format_relation(r, is_external=True)
+                        print(f"{item_prefix} {rel_str}")
+    
+    print("\n\nRESUMO QUANTITATIVO:")
+    print(f"- Classes..........: {len(classes)}")
+    print(f"- Datatypes........: {len(datatypes)}")
+    print(f"- Enums............: {len(enums)}")
+    print(f"- GenSets..........: {len(gensets)}")
+    print(f"- Rel. internas....: {len(internal)}")
+    print(f"- Rel. externas....: {len(external)}")
+    print("\n=================================================================================")
 
 # ====== Erros Sintáticos ====== 
 def show_syntax_errors(errors=None):
@@ -469,6 +592,7 @@ def show_syntax_errors(errors=None):
         return
     for e in errors:
         print(" -", e)
+    print("\n========================================================")
 
 # ====== Construção do Parser ====== 
 parser = yacc.yacc(start="model")
@@ -498,12 +622,9 @@ def parse_file(file_path):
 
     # desliga a coleta léxica durante o parse
     lexer.collect_lex_info = False
-
     base_lexer.lineno = 1
     base_lexer.input(data)
     ast = parser.parse(lexer=base_lexer)
-
     # reativa, se precisar de outra análise léxica no futuro
     lexer.collect_lex_info = True
-
     return ast, summary, syntax_errors

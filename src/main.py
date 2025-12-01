@@ -25,15 +25,15 @@ def choose_input_file():
         choice = input("Escolha uma opção (1/2): ").strip()
 
         if choice == '1':
-            path = input("Digite o caminho do arquivo .tonto: ").strip().strip('"')
+            path = input("\nDigite o caminho do arquivo .tonto: ").strip().strip('"')
             if not os.path.isfile(path):
-                print("Arquivo não encontrado. Verifique o caminho e tente novamente.")
+                print("❌ Arquivo não encontrado. Verifique o caminho e tente novamente.")
                 continue
             return path
         elif choice == '2':
             files = list_example_tonto_files()
             if not files:
-                print("Nenhum arquivo .tonto encontrado em 'examples'.")
+                print("❌ Nenhum arquivo .tonto encontrado em 'examples'.")
                 continue
 
             print("\nArquivos disponíveis:")
@@ -46,9 +46,9 @@ def choose_input_file():
                     return files[opt - 1]
             except ValueError:
                 pass
-            print("Opção inválida, tente novamente.")
+            print("❌ Opção inválida, tente novamente.")
         else:
-            print("Opção inválida. Tente novamente.")
+            print("❌ Opção inválida. Tente novamente.")
 
 def run_all_analyses(file_path):
     """Roda análise léxica e sintática para o arquivo."""
@@ -70,7 +70,7 @@ def run_all_analyses(file_path):
 
 def menu_loop():
     while True:
-        print("\n========== MENU DE OPÇÕES ==========")
+        print("\n=========== MENU DE OPÇÕES ===========")
         print("1. Exibir Tokens Processados (léxico)")
         print("2. Exibir Tabela de Símbolos (léxico)")
         print("3. Exibir Contagem de Tokens (léxico)")
@@ -88,12 +88,12 @@ def menu_loop():
             show_token_count()
         elif choice == '4':
             if current_summary is None:
-                print("Nenhuma análise sintática realizada ainda.")
+                print("❌ Nenhuma análise sintática realizada ainda.")
             else:
                 show_syntax_summary(current_summary)
         elif choice == '5':
             if current_syntax_errors is None:
-                print("Nenhuma análise sintática realizada ainda.")
+                print("❌Nenhuma análise sintática realizada ainda.")
             else:
                 show_syntax_errors(current_syntax_errors)
         elif choice == '6':
@@ -104,7 +104,7 @@ def menu_loop():
             print("Saindo...")
             break
         else:
-            print("Opção inválida. Tente novamente.")
+            print("❌ Opção inválida. Tente novamente.")
 
 def main():
     file_path = choose_input_file()

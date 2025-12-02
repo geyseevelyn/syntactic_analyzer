@@ -14,7 +14,7 @@ Este projeto implementa um **Analisador Sintático** (Parser) para a linguagem [
    * [Construtos Reconhecidos](#-construtos-reconhecidos)
    * [Como Usar](#-como-usar)
    * [Exemplo de Uso](#-exemplo-de-uso)
-   * [Autores](#-autores)
+   * [Autores](#%E2%80%8D-autores)
    * [Licença](#-licença)
 <!--te-->
 
@@ -270,5 +270,5 @@ Este projeto está sob a licença *MIT*. Consulte o arquivo [LICENSE](./LICENSE)
 ---
 
 <div align="center">
-    <a href="https://github.com/geyseevelyn/lexical_analyzer?tab=readme-ov-file#analisador-l%C3%A9xico-para-a-linguagem-tonto">Voltar ao topo</a>
+    <a href="https://github.com/geyseevelyn/syntactic_analyzer/tree/geyse?tab=readme-ov-file#analisador-sint%C3%A1tico-para-a-linguagem-tonto">Voltar ao topo</a>
 </div>

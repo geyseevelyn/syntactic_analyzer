@@ -2,7 +2,7 @@
 
 Esta seção descreve detalhadamente todos os construtos reconhecidos pelo **analisador sintático**, conforme a especificação apresentada na documentação do trabalho e na [monografia](https://matheuslenke.github.io/tonto-docs/pdf/Tonto.pdf) oficial da linguagem **TONTO** (*APPENDIX A – Tonto Grammar*).
 
-> [!TIP]
+> [!IMPORTANT]
 > As regras para escrever os nomes de *classes* (*pacotes*, *enumerações* e *generalization sets* seguem o mesmo padrão), *novos tipos de dados*, *instâncias* e *relações* foram especificadas no [Analisador Léxico](https://github.com/geyseevelyn/lexical_analyzer/blob/main/docs/tokens_tonto_details.md).
 
 ---
@@ -100,7 +100,7 @@ Inclui atributos próprios e/ou relações internas.
 
 #### Exemplos:
 
-* Classe contendo atributo e relação interna:
+* Classe contendo **atributo** e **relação interna**:
 
    ```tonto
    kind University {
@@ -109,7 +109,7 @@ Inclui atributos próprios e/ou relações internas.
    }
    ```
 
-* Classe apenas com atributos:
+* Classe apenas com **atributos**:
 
    ```tonto
    kind Person {
@@ -122,7 +122,7 @@ Inclui atributos próprios e/ou relações internas.
 
 ## 4. Declaração de Tipos de Dados
 
-**TONTO** permite construir ou derivar novos tipos de dados mais complexos a partir dos seis tipos nativos:  `number`, `string`, `boolean`, `date`, `time`, `datetime`. A declaração desse tipo de construto é precedida pela palavra reservada `datatype`.
+**TONTO** permite construir ou derivar **novos tipos de dados** mais complexos a partir dos seis tipos nativos:  `number`, `string`, `boolean`, `date`, `time`, `datetime`. A declaração desse tipo de construto é precedida pela palavra reservada `datatype`.
 
 ### 4.1. Tipos de Dados com Atributos
 
@@ -137,7 +137,7 @@ datatype <NomeDoTipoDataType> {
 
 #### Exemplos:
 
-* Tipo de dado apenas com atributos:
+* Tipo de dado com **apenas atributos**:
 
    ```tonto
    datatype AddressDataType {
@@ -146,7 +146,7 @@ datatype <NomeDoTipoDataType> {
    }
    ```
 
-* Tipo de dado com atributos e cardinalidade:
+* Tipo de dado com **atributos** e **cardinalidade**:
 
    ```tonto
    datatype PhoneNumberDataType { 
@@ -173,7 +173,7 @@ datatype intDataType specializes number
 
 ## 5. Declaração de Classes Enumeradas
 
-Utilizadas para definir conjuntos finitos e pré-definidos de instâncias (ou indivíduos). A declaração desse tipo de classe é precedida pela palavra reservada `enum`.
+Utilizadas para definir **conjuntos finitos** e **pré-definidos de instâncias** (ou indivíduos). A declaração desse tipo de classe é precedida pela palavra reservada `enum`.
 
 #### Estrutura:
 
@@ -219,7 +219,7 @@ Nesta abordagem, tanto a classe mãe quanto as classes filhas são listadas em l
 
 #### Exemplos:
 
-* Sem restrições: 
+* *Genset* **sem restrições**: 
 
     ```tonto
     genset PersonAgeGroup {
@@ -227,8 +227,8 @@ Nesta abordagem, tanto a classe mãe quanto as classes filhas são listadas em l
         specifics Child, Adult
     }
     ```
-    
-* Com restrições: 
+
+* *Genset* **com restrições**: 
 
     ```tonto
     disjoint complete genset AgePhase {

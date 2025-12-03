@@ -108,7 +108,7 @@ class AnalyzerTUI(App):
         widget.clear()
         # Split for incremental append to keep log performant
         for line in text.splitlines():
-            widget.write(line + "\n")
+            widget.write(line)
 
     def _run_all(self, file_path: str) -> None:
         try:

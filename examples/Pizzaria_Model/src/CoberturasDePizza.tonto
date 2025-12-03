@@ -1,0 +1,38 @@
+import Pizza
+
+package CoberturasDePizza
+
+subkind Calabresa specializes Carne
+subkind Presunto specializes Carne
+subkind Salame specializes Carne
+
+disjoint complete genset Opcao_De_Carne {
+    general Carne
+    specifics Calabresa, Presunto, Salame
+}
+
+subkind Anchova specializes Fruto_Do_Mar
+subkind Atum specializes Fruto_Do_Mar
+subkind Camarao specializes Fruto_Do_Mar
+
+disjoint complete genset Opcao_De_Fruto_Do_Mar {
+    general Fruto_Do_Mar
+    specifics Anchova, Atum, Camarao
+}
+
+subkind Mussarela specializes Queijo
+subkind Parmesao specializes Queijo
+
+disjoint complete genset Opcao_De_Queijo {
+    general Queijo
+    specifics Mussarela, Parmesao
+}
+
+subkind Azeitona specializes Vegetal
+subkind Pimenta specializes Vegetal
+subkind Tomate specializes Vegetal
+
+disjoint complete genset Opcao_De_Vegetal {
+    general Vegetal
+    specifics Azeitona, Pimenta, Tomate
+}

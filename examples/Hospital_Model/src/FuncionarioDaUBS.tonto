@@ -1,0 +1,28 @@
+import Pessoa
+import Paciente
+
+package FuncionarioDaUBS
+
+role FuncionarioDaUBS specializes Pessoa 
+role Enfermeiro specializes FuncionarioDaUBS
+
+role Medico specializes FuncionarioDaUBS {
+    especialidade: Especialidade
+}
+
+enum Especialidade {
+    Clinico_Geral01,
+    Pediatra02,
+    Ginecologista03,
+    Dentista04
+}
+
+disjoint complete genset Paciente_E_Funcionario {
+    general Pessoa
+    specifics Paciente, FuncionarioDaUBS
+}
+
+disjoint complete genset CargosNaUBS {
+    general FuncionarioDaUBS
+    specifics Enfermeiro, Medico
+}

@@ -81,7 +81,7 @@ def add_to_error_list(token):
 
 # Atributos de Classes e DataTypes
 def t_ATTRIBUTE(t):
-    r'\b[a-z][a-zA-Z]*:'
+    r'\b[a-z][a-zA-Z_]*:'
     t.value = t.value[:-1]  
     add_to_symbol_table(t)
     return t

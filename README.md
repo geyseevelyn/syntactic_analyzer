@@ -62,30 +62,30 @@ O **Analisador Sintático para a Linguagem TONTO** foi desenvolvido como parte d
 ```shell
 syntactic_analyzer/
 ├── docs/                      
-│   └── tonto_constructs.md     # Detalhes sobre as construções da linguagem TONTO
+│   └── tonto_constructs.md      # Detalhes sobre as construções da linguagem TONTO
 │
-├── examples/                   # Arquivos TONTO de entrada para testes
+├── examples/                    # Arquivos TONTO de entrada para testes
 ├── src/                        
 │   ├── cli/
-│   │   ├── __init__.py         # Indica que 'cli' é um pacote Python.
-│   │   └── main.py             # Ponto de entrada da aplicação. Contém o CLI e o menu principal.
+│   │   ├── __init__.py          # Indica que 'cli' é um pacote Python.
+│   │   └── main.py              # Ponto de entrada da aplicação. Contém o CLI e o menu principal.
 │   │
 │   ├── lexical/
-│   │   ├── __init__.py         # Indica que 'lexical' é um pacote Python
-│   │   ├── lexer.py            # Definições do Lexer (PLY) e regras léxicas (tokens) 
-│   │   └── reports.py          # Funções para exibir relatórios léxicos (Tokens, Tabela de Símbolos, Contagem)
+│   │   ├── __init__.py          # Indica que 'lexical' é um pacote Python
+│   │   ├── lexer.py             # Definições do Lexer (PLY) e regras léxicas (tokens) 
+│   │   └── lexer_reports.py     # Funções para exibir relatórios léxicos (Tokens, Tabela de Símbolos, Contagem)
 │   │
 │   ├── parsing/
-│   │   ├── __init__.py         # Indica que 'parsing' é um pacote Python
-│   │   ├── grammar.py          # Definições do Parser (PLY) e regras de gramática
-│   │   ├── reports.py          # Funções para exibir relatórios sintáticos (Resumo e Erros)
-│   │   └── summary.py          # Classe ModelBuilder para coletar o resumo sintático
+│   │   ├── __init__.py          # Indica que 'parsing' é um pacote Python
+│   │   ├── grammar.py           # Definições do Parser (PLY) e regras de gramática
+│   │   ├── parse_reports.py     # Funções para exibir relatórios sintáticos (Resumo e Erros)
+│   │   └── summary.py           # Classe ModelBuilder para coletar o resumo sintático
 │   │
-│   └── __init__.py             # Define 'src' como o pacote raiz.
+│   └── __init__.py              # Define 'src' como o pacote raiz.
 │
-├── .gitignore                  # Arquivo para ignorar pastas e arquivos gerados (padrão Git)
-├── LICENSE                     # Informações sobre a licença de uso do código.
-└── README.md                   # Documentação principal do projeto.
+├── .gitignore                   # Arquivo para ignorar pastas e arquivos gerados (padrão Git)
+├── LICENSE                      # Informações sobre a licença de uso do código.
+└── README.md                    # Documentação principal do projeto.
 
 ```
 
@@ -109,7 +109,7 @@ Além de manter todas funcionalidades do [**analisador léxico**](https://github
 
 ## 🔤 Construtos Reconhecidos  
 
-A **especificação detalhada** dos construtos da linguagem **TONTO** reconhecidas pelo **analisador sintático** pode ser encontrada nesse [documento](docs/tonto_constructs.md).
+A **especificação detalhada** dos construtos da linguagem **TONTO** reconhecidos pelo **analisador sintático** pode ser encontrada nesse [documento](docs/tonto_constructs.md).
 
 ---
 

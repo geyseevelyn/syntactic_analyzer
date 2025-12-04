@@ -201,14 +201,23 @@ class TontoParser:
     # Gensets 
     def p_genset_short(self, p):
         """genset_short : opt_constraints GENSET CLASS_NAME WHERE class_list SPECIALIZES CLASS_NAME"""
-        self.model_builder.register_genset(p[3], p[1], general=p[7], specifics=p[5], categorizer=None)
-        p[0] = ("genset_short", p[3])
+        constraints = p[1]
+        name = p[3]        
+        specifics = p[5]  
+        general = p[7]     
+        categorizer = None 
+
+        self.model_builder.register_genset(name, constraints, general, specifics, categorizer, data=None)
+        p[0] = ("genset_inline", specifics, general)
 
     def p_genset_long(self, p):
         """genset_long : opt_constraints GENSET CLASS_NAME LBRACE genset_body RBRACE"""
-        data = p[5]
-        self.model_builder.register_genset(p[3], p[1], data=data)
-        p[0] = ("genset_long", p[3])
+        constraints = p[1] 
+        name = p[3]        
+        data = p[5]       
+
+        self.model_builder.register_genset(name, constraints, None, None, None, data=data)
+        p[0] = ("genset_long", data)
 
     def p_genset_body(self, p):
         """genset_body : genset_general opt_genset_categorizer genset_specifics"""

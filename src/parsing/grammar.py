@@ -246,7 +246,7 @@ class TontoParser:
 
     # Relação Interna 
     def p_internal_relation_decl(self, p):
-        """internal_relation_decl : opt_stereo opt_left_card rel_connector opt_relname CARDINALITY CLASS_NAME"""
+        """internal_relation_decl : opt_stereo opt_cardinality rel_connector opt_relname opt_cardinality CLASS_NAME"""
         stereo = p[1]
         card_from = p[2]
         connector = p[3]
@@ -258,11 +258,6 @@ class TontoParser:
         """opt_stereo :
                       | AT RELATION_STEREOTYPE"""
         p[0] = None if len(p) == 1 else p[2]
-
-    def p_opt_left_card(self, p):
-        """opt_left_card :
-                         | CARDINALITY"""
-        p[0] = p[1] if len(p) > 1 else None
 
     def p_rel_connector(self, p):
         """rel_connector : ASSOCIATION
@@ -277,7 +272,7 @@ class TontoParser:
 
     def p_external_relation_decl(self, p):
         """
-        external_relation_decl : opt_stereo RELATION CLASS_NAME opt_left_card rel_connector opt_relname CARDINALITY CLASS_NAME"""
+        external_relation_decl : opt_stereo RELATION CLASS_NAME opt_cardinality rel_connector opt_relname opt_cardinality CLASS_NAME"""
         stereo    = p[1]
         domain    = p[3]
         card_from = p[4]

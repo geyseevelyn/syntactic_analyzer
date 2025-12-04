@@ -109,7 +109,7 @@ Além de manter todas funcionalidades do [**analisador léxico**](https://github
 
 ## 🔤 Construtos Reconhecidos  
 
-A **especificação detalhada** dos construtos da linguagem **TONTO** reconhecidas pelo **analisador sintático** pode ser encontrada nesse [documento](docs/tonto_constructs.md).
+A **especificação detalhada** dos construtos da linguagem **TONTO** reconhecidos pelo **analisador sintático** pode ser encontrada nesse [documento](docs/tonto_constructs.md).
 
 ---
 

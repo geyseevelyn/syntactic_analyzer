@@ -24,9 +24,9 @@ Este projeto implementa um **Analisador Sintático** (Parser) para a linguagem [
 
 A **TONTO** (*Textual Ontology Language*) é uma linguagem textual para modelagem de ontologias, desenvolvida por **Matheus Lenke Coutinho**. Criada com o objetivo de superar limitações das linguagens de modelagem puramente visuais, ela permite a **edição**, **validação** e **versionamento** de ontologias por meio de **código textual** e também a **conversão** para outros para outros formatos como:
 
-- *OntoUML*
-- *gUFO (OWL)*
-- *JSON*
+* *OntoUML*
+* *gUFO (OWL)*
+* *JSON*
 
 Também possui extensão para o *VSCode*, permitindo criar módulos `.tonto`, gerenciar dependências com o *Tonto Package Manager* e gerar modelos interoperáveis com o *Protégé* e o *Visual Paradigm*.
 
@@ -39,22 +39,22 @@ Também possui extensão para o *VSCode*, permitindo criar módulos `.tonto`, ge
 
 O **Analisador Sintático para a Linguagem TONTO** foi desenvolvido como parte de um estudo prático sobre a construção de compiladores e ferramentas de análise sintática. O projeto complementa o **Analisador Léxico** (documentação completa pode ser acessada [aqui](https://github.com/geyseevelyn/lexical_analyzer)) previamente desenvolvido e consome diretamente os *tokens* produzidos por ele. O objetivo é verificar a corretude da especificação textual de uma ontologia nos seguintes casos:
 
-- **Declaração de importações**;
-- **Declaração de pacotes**;
-- **Declaração de classes**;
-- **Declaração de tipos de dados**;
-- **Declaração de classes enumeradas**;
-- **Declaração de generalizações (*generalization sets*)**;
-- **Declarações de relações (internas e externas)**.
+* **Declaração de importações**;
+* **Declaração de pacotes**;
+* **Declaração de classes**;
+* **Declaração de tipos de dados**;
+* **Declaração de classes enumeradas**;
+* **Declaração de generalizações (*generalization sets*)**;
+* **Declarações de relações (internas e externas)**.
 
 ---
 
 ## 🛠 Tecnologias Utilizadas
 
-- **Python 3.10+**
-- **PLY** (Python Lex-Yacc)
-- **Textual** (framework TUI para a interface em terminal)
-- **TONTO** (Extensão do *VS Code*, *Tonto CLI* e *Tonto Package Manager*).
+* **Python 3.10+**
+* **PLY** (Python Lex-Yacc)
+* **Textual** (*framework* TUI para a interface em terminal)
+* **TONTO** (Extensão do *VS Code*, *Tonto CLI* e *Tonto Package Manager*).
 
 ---
 
@@ -63,6 +63,7 @@ O **Analisador Sintático para a Linguagem TONTO** foi desenvolvido como parte d
 ```shell
 syntactic_analyzer/
 ├── docs/                      
+│   ├── images/                  # Imagens da documentação
 │   └── tonto_constructs.md      # Detalhes sobre as construções da linguagem TONTO
 │
 ├── examples/                    # Arquivos TONTO de entrada para testes
@@ -73,8 +74,8 @@ syntactic_analyzer/
 │   │
 │   ├── lexical/
 │   │   ├── __init__.py          # Indica que 'lexical' é um pacote Python
-│   │   ├── lexer.py             # Definições do Lexer (PLY) e regras léxicas (tokens) 
-│   │   └── lexer_reports.py     # Funções para exibir relatórios léxicos (Tokens, Tabela de Símbolos, Contagem)
+│   │   ├── lexer_reports.py     # Funções para exibir relatórios léxicos (Tokens, Tabela de Símbolos, Contagem)
+│   │   └── lexer.py             # Definições do Lexer (PLY) e regras léxicas (tokens) 
 │   │
 │   ├── parsing/
 │   │   ├── __init__.py          # Indica que 'parsing' é um pacote Python
@@ -89,9 +90,9 @@ syntactic_analyzer/
 │   └── __init__.py              # Define 'src' como o pacote raiz.
 │
 ├── .gitignore                   # Arquivo para ignorar pastas e arquivos gerados (padrão Git)
-├── requirements.txt             # Pré-requisitos para instalação das dependências do projeto
 ├── LICENSE                      # Informações sobre a licença de uso do código.
-└── README.md                    # Documentação principal do projeto.
+├── README.md                    # Documentação principal do projeto.
+└── requirements.txt             # Pré-requisitos para instalação das dependências do projeto
 
 ```
 
@@ -99,7 +100,7 @@ syntactic_analyzer/
 
 ## ✨ Funcionalidades
 
-Além de manter todas funcionalidades do [**analisador léxico**](https://github.com/geyseevelyn/lexical_analyzer), o **Analisador Sintático** oferece: 
+Além de manter todas as funcionalidades do [**analisador léxico**](https://github.com/geyseevelyn/lexical_analyzer), o **Analisador Sintático** oferece:
 
 * **Validação Sintática**: verifica a corretude estrutural de ontologias escritas em **TONTO**;
 
@@ -109,7 +110,7 @@ Além de manter todas funcionalidades do [**analisador léxico**](https://github
 
 * **Integração com Lexer**: usa os *tokens* gerados pelo analisador léxico;
 
-* **Menu Interativo:** permite a navegação por arquivos `.tonto` e a visualização de resultados.
+* **Menu Interativo:** permite a navegação visual por arquivos `.tonto` e a visualização dos resultados das **análises léxica** e **sintática**.
 
 ---
 
@@ -123,7 +124,9 @@ A **especificação detalhada** dos construtos da linguagem **TONTO** reconhecid
 
 ### Pré-requisitos
 
-- [Python 3.10+](https://www.python.org/downloads/)
+* [Python 3.10+](https://www.python.org/downloads/)
+* [PLY (Python Lex-Yacc)](https://www.dabeaz.com/ply/)
+* [Textual](https://textual.textualize.io/getting_started/)
 
 ### Instalação (recomendada)
 
@@ -134,16 +137,16 @@ A **especificação detalhada** dos construtos da linguagem **TONTO** reconhecid
    cd syntactic_analyzer
    ```
 
-2. (Opcional, mas recomendado) Crie e ative um ambiente virtual:
+2. Crie e ative um ambiente virtual (**Opcional, mas recomendado**):
 
-   - Windows (PowerShell):
+   - Windows (*PowerShell*):
 
      ```powershell
      python -m venv .venv
      .\.venv\Scripts\Activate.ps1
      ```
 
-   - Linux/macOS (bash):
+   - Linux/macOS (*bash*):
 
      ```bash
      python -m venv .venv
@@ -160,7 +163,7 @@ A **especificação detalhada** dos construtos da linguagem **TONTO** reconhecid
 
 Você pode executar o analisador de duas formas: via linha de comando (CLI) ou via interface de terminal (UI/TUI).
 
-#### Opção A) Via CLI (menu em texto)
+#### OPÇÃO A: Via CLI (menu em texto)
 
 1. Execute o módulo principal da CLI:
 
@@ -168,39 +171,31 @@ Você pode executar o analisador de duas formas: via linha de comando (CLI) ou v
    python -m src.cli.main
    ```
 
-2. No menu interativo, escolha:
-   - Digitar o caminho completo do arquivo `.tonto` (Opção 1), ou
+2. No menu interativo, escolha uma opção:
+   - Digitar o caminho completo do arquivo `.tonto` (Opção 1);
    - Listar e escolher um arquivo `.tonto` da pasta `examples` (Opção 2).
 
-3. Após a análise, utilize as opções do menu para visualizar tokens, tabela de símbolos, contagem, resumo sintático e erros.
+3. Após a análise do arquivo, utilize as opções do menu principal para *Tokens*, *Tabela de Símbolos*, *Contagem de Tokens*, ***Resumo Sintático*** e ***Erros Sintáticos***.
 
-#### Opção B) Via UI/TUI (interface com abas — Textual)
+#### OPÇÃO B: Via UI/TUI (interface com abas — Textual)
 
-1. Execute a interface TUI:
+<p align=center>
+   <img src="docs/images/tui_menu.svg" width="700" alt="Syntactic Analyzer Terminal UI"/>
+</p>
+
+
+> [!IMPORTANT]
+> Para melhor experiência, execute a TUI no terminal do seu sistema (ex.: *Windows Terminal/PowerShell*, *macOS Terminal* ou *terminal do Linux*). No terminal integrado do *VS Code*, o suporte ao mouse/seleção do *Textual* pode não funcionar corretamente.
+
+1. Já na pasta do projeto, execute a interface *TUI*:
 
    ```bash
    python -m src.ui.tui
    ```
 
-   > Dica rápida: para melhor experiência, rode a TUI no terminal do seu sistema (ex.: Windows Terminal/PowerShell, macOS Terminal ou terminal do Linux). No terminal integrado do VS Code, o suporte ao mouse/seleção do Textual pode não funcionar corretamente.
-
 2. Use o painel à esquerda para navegar nos diretórios e selecione um arquivo `.tonto`.
 
-3. Os resultados aparecerão nas abas: Tokens, Tabela de Símbolos, Contagem de Tokens, Resumo Sintático e Erros Sintáticos.
-
-### Usando os exemplos prontos
-
-* O projeto já inclui exemplos na pasta `examples/`. Você pode escolher a **Opção 2** no CLI ou navegar até a pasta na TUI e selecionar um arquivo. Exemplos:
-  * `CarExample\src\car.tonto`
-  * `FoodAllergyExample\src\alergiaalimentar.tonto`
-  * `TDAHExample\src\TDAH.tonto`
-
-### Usando seu próprio arquivo
-
-1. Tenha um arquivo com a extensão `.tonto` salvo no seu computador.
-2. Execute o programa (`python -m src.cli.main`).
-3. Escolha a **Opção 1** e cole o caminho completo do arquivo, por exemplo:
-   - `C:\Users\seu_usuario\Documents\meu_arquivo.tonto`
+3. Os resultados aparecerão nas abas: *Tokens*, *Tabela de Símbolos*, *Contagem de Tokens*, ***Resumo Sintático*** e ***Erros Sintáticos***.
 
 ---
 
@@ -223,63 +218,14 @@ Você pode executar o analisador de duas formas: via linha de comando (CLI) ou v
       -- involvesProperty -- [1] Car
    }
    ```
-### Saída Esperada
 
-- **Resumo Sintático** (*Opção 4* do menu principal):
+### Saída Esperada
 
    <details>
    <summary>Clique para expandir</summary>
    <br>
-
-   ```
-   =========================== RESUMO SINTÁTICO ===========================
-
-   🌳 ONTOLOGIA
-   ├──  📥 IMPORTS:
-   │   └── (Nenhum pacote importado)
-   └──  📦 PACOTE: CarOwnership
-      └──  📖 CLASSES:
-         ├──  <kind> Organization
-         ├──  <subkind> CarAgency specializes Organization
-         ├──  <kind> Car
-         └──  <relator> CarOwnership
-               └──  🔗 RELAÇÕES INTERNAS:
-                  ├──  @mediation -- involvesOwner -- [1] CarAgency
-                  └──  @mediation -- involvesProperty -- [1] Car
-
-
-   📊 RESUMO QUANTITATIVO
-   ┌───────────────┬─────┐
-   │ Construto     │ Qtd │
-   ├───────────────┼─────┤
-   │ Classes       │   4 │
-   │ Datatypes     │   0 │
-   │ Enums         │   0 │
-   │ GenSets       │   0 │
-   │ Rel. internas │   2 │
-   │ Rel. externas │   0 │
-   └───────────────┴─────┘
-
-   =================================== ## ===================================
-   ```
-
+      <img src="docs/images/syntax_summary_example.svg" width="700" alt="Car,tonto Syntactic Summary" >
    </details>
-
-- **Erros Sintáticos** (*Opção 5* do  principal):
-
-  <details>
-  <summary>Clique para expandir</summary>
-  <br>
-
-   ```
-   ====================== ERROS SINTÁTICOS =====================
-
-   ✅ Nenhum erro sintático encontrado.
-
-   =========================== ## ==============================
-   ```
-
-  </details>
 
 ---
 

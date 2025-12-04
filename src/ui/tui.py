@@ -9,10 +9,9 @@ from textual import on
 
 # Imports reusing the existing analysis pipeline and report printers
 from ..lexical.lexer import analyze_text
-from ..lexical.reports import show_tokens, show_symbol_table, show_token_count
+from ..lexical.lexer_reports import show_tokens, show_symbol_table, show_token_count
 from ..parsing.grammar import parse_text
-from ..parsing.reports import show_syntax_summary, show_syntax_errors
-
+from ..parsing.parse_reports import show_syntax_summary, show_syntax_errors
 
 def _capture(func, *args, **kwargs) -> str:
     """Capture stdout from existing report functions as a string."""
@@ -20,7 +19,6 @@ def _capture(func, *args, **kwargs) -> str:
     with redirect_stdout(buf):
         func(*args, **kwargs)
     return buf.getvalue()
-
 
 class AnalyzerTUI(App):
     CSS = """
@@ -51,7 +49,7 @@ class AnalyzerTUI(App):
         padding: 1;
     }
     """
-
+    
     BINDINGS = [
         ("q", "quit", "Sair"),
         ("r", "recarregar", "Recarregar arquivo"),
@@ -146,7 +144,6 @@ class AnalyzerTUI(App):
         else:
             self.notify("Análise sintática concluída com sucesso!", severity="information")
 
-
 def main() -> None:
     # Prefer opening examples directory if it exists
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
@@ -154,7 +151,6 @@ def main() -> None:
     start_dir = examples_dir if os.path.isdir(examples_dir) else project_root
     app = AnalyzerTUI(start_dir=start_dir)
     app.run()
-
 
 if __name__ == "__main__":
     main()

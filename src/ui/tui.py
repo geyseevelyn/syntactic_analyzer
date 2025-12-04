@@ -9,9 +9,9 @@ from textual import on
 
 # Imports reusing the existing analysis pipeline and report printers
 from ..lexical.lexer import analyze_text
-from ..lexical.reports import show_tokens, show_symbol_table, show_token_count
+from ..lexical.lexer_reports import show_tokens, show_symbol_table, show_token_count
 from ..parsing.grammar import parse_text
-from ..parsing.reports import show_syntax_summary, show_syntax_errors
+from ..parsing.parse_reports import show_syntax_summary, show_syntax_errors
 
 
 def _capture(func, *args, **kwargs) -> str:

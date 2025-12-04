@@ -51,8 +51,9 @@ O **Analisador Sintático para a Linguagem TONTO** foi desenvolvido como parte d
 
 ## 🛠 Tecnologias Utilizadas
 
-- **Python 3.10+**;
+- **Python 3.10+**
 - **PLY** (Python Lex-Yacc)
+- **Textual** (framework TUI para a interface em terminal)
 - **TONTO** (Extensão do *VS Code*, *Tonto CLI* e *Tonto Package Manager*).
 
 ---
@@ -67,8 +68,8 @@ syntactic_analyzer/
 ├── examples/                    # Arquivos TONTO de entrada para testes
 ├── src/                        
 │   ├── cli/
-│   │   ├── __init__.py          # Indica que 'cli' é um pacote Python.
-│   │   └── main.py              # Ponto de entrada da aplicação. Contém o CLI e o menu principal.
+│   │   ├── __init__.py          # Indica que 'cli' é um pacote Python
+│   │   └── main.py              # Ponto de entrada da aplicação via CLI (menu interativo em texto)
 │   │
 │   ├── lexical/
 │   │   ├── __init__.py          # Indica que 'lexical' é um pacote Python
@@ -81,9 +82,14 @@ syntactic_analyzer/
 │   │   ├── parse_reports.py     # Funções para exibir relatórios sintáticos (Resumo e Erros)
 │   │   └── summary.py           # Classe ModelBuilder para coletar o resumo sintático
 │   │
+│   ├── ui/
+│   │   ├── __init__.py          # Indica que 'ui' é um pacote Python
+│   │   └── tui.py               # Interface TUI (Textual) com abas para resultados
+│   │
 │   └── __init__.py              # Define 'src' como o pacote raiz.
 │
 ├── .gitignore                   # Arquivo para ignorar pastas e arquivos gerados (padrão Git)
+├── requirements.txt             # Pré-requisitos para instalação das dependências do projeto
 ├── LICENSE                      # Informações sobre a licença de uso do código.
 └── README.md                    # Documentação principal do projeto.
 
@@ -115,56 +121,76 @@ A **especificação detalhada** dos construtos da linguagem **TONTO** reconhecid
 
 ## 🚀 Como Usar
 
-### Pré-requisitos 
+### Pré-requisitos
 
 - [Python 3.10+](https://www.python.org/downloads/)
-- [PLY (Python Lex-Yacc)](https://www.dabeaz.com/ply/)
 
-### Instalação
+### Instalação (recomendada)
 
-1. Clone o repositório ou baixe o arquivo ZIP:
+1. Clone o repositório:
 
    ```bash
    git clone https://github.com/geyseevelyn/syntactic_analyzer.git
-   ```
-
-2. Acesse a pasta do projeto:
-
-   ```bash
    cd syntactic_analyzer
    ```
 
-3. Instale a dependência necessária (PLY):
+2. (Opcional, mas recomendado) Crie e ative um ambiente virtual:
+
+   - Windows (PowerShell):
+
+     ```powershell
+     python -m venv .venv
+     .\.venv\Scripts\Activate.ps1
+     ```
+
+   - Linux/macOS (bash):
+
+     ```bash
+     python -m venv .venv
+     source .venv/bin/activate
+     ```
+
+3. Instale as dependências do projeto:
 
    ```bash
-   pip install ply
+   pip install -r requirements.txt
    ```
 
 ### Execução
 
-1. Já na pasta do projeto, execute o código:
+Você pode executar o analisador de duas formas: via linha de comando (CLI) ou via interface de terminal (UI/TUI).
+
+#### Opção A) Via CLI (menu em texto)
+
+1. Execute o módulo principal da CLI:
 
    ```bash
    python -m src.cli.main
    ```
 
-2. Na **menu interativo**, escolha uma opção:
-   - **Opção 1**: Digitar o caminho completo do arquivo `.tonto` no seu computador.
-   - **Opção 2**: Listar e escolher um arquivo `.tonto` da pasta `examples`.
+2. No menu interativo, escolha:
+   - Digitar o caminho completo do arquivo `.tonto` (Opção 1), ou
+   - Listar e escolher um arquivo `.tonto` da pasta `examples` (Opção 2).
 
-3. Após selecionar o arquivo, o programa vai processá-lo e exibir o **menu principal** com opções para:
+3. Após a análise, utilize as opções do menu para visualizar tokens, tabela de símbolos, contagem, resumo sintático e erros.
 
-   * Exibir Tokens Processados (léxico)
-   * Exibir Tabela de Símbolos (léxico)
-   * Exibir Contagem de Tokens (léxico)
-   * **Exibir Resumo Sintático**
-   * **Exibir Erros Sintáticos**
-   * Analisar outro arquivo (`.tonto`)
-   * Sair
+#### Opção B) Via UI/TUI (interface com abas — Textual)
+
+1. Execute a interface TUI:
+
+   ```bash
+   python -m src.ui.tui
+   ```
+
+   > Dica rápida: para melhor experiência, rode a TUI no terminal do seu sistema (ex.: Windows Terminal/PowerShell, macOS Terminal ou terminal do Linux). No terminal integrado do VS Code, o suporte ao mouse/seleção do Textual pode não funcionar corretamente.
+
+2. Use o painel à esquerda para navegar nos diretórios e selecione um arquivo `.tonto`.
+
+3. Os resultados aparecerão nas abas: Tokens, Tabela de Símbolos, Contagem de Tokens, Resumo Sintático e Erros Sintáticos.
 
 ### Usando os exemplos prontos
 
-* O projeto já inclui exemplos na pasta`\examples`. Você pode escolher a **Opção 2** quando o programa pedir e selecionar um arquivo da lista, por exemplo:
+* O projeto já inclui exemplos na pasta `examples/`. Você pode escolher a **Opção 2** no CLI ou navegar até a pasta na TUI e selecionar um arquivo. Exemplos:
   * `CarExample\src\car.tonto`
   * `FoodAllergyExample\src\alergiaalimentar.tonto`
   * `TDAHExample\src\TDAH.tonto`

@@ -1,0 +1,24 @@
+import Cliente
+
+package Pessoa
+
+kind Pessoa {
+    nome: string [1]
+    cpf: string [1]
+}
+
+role Dono_De_Pizzaria specializes Pessoa
+role Funcionario specializes Pessoa
+
+disjoint complete genset Papel_Da_Pessoa {
+    general Pessoa
+    specifics ClienteIndividual, Dono_De_Pizzaria, Funcionario
+}
+
+role Pizzaiolo specializes Funcionario
+role Atendente specializes Funcionario
+
+disjoint complete genset Papel_Do_Funcionario {
+    general Funcionario
+    specifics Pizzaiolo, Atendente
+}
